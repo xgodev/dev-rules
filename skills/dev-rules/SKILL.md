@@ -1,0 +1,166 @@
+---
+name: dev-rules
+description: Use when writing, editing, or refactoring code in any language -- before writing, not after
+---
+
+# dev-rules -- Engineering Discipline
+
+Methodology and decision rules for ANY code, in ANY language. Apply BEFORE
+writing, not after. This is the judgment a mechanical gate cannot measure:
+ownership, coupling, honesty of failure, TDD order, docs sync. The
+companion gate (`xgodev/quality-gate`) catches metric regressions
+(fmt/lint/build/test/complexity/coverage); this skill governs the
+decisions the gate cannot see. Use both -- they do not overlap.
+
+This is a discipline skill, not a reference. It is rigid on purpose. The
+LAWs below have no time-pressure exception, no authority exception, no
+sunk-cost exception. "Just this once" is the failure mode this skill
+exists to stop.
+
+## STOP -- Check Before You Code
+
+Run this list before writing the first line. It is language-agnostic;
+"type", "id", "module", "file" mean the same in Go, Python, TypeScript,
+Rust, shell, anything.
+
+- **Data Ownership** -- Each fact is defined in its owner, read from
+  there, never inferred or duplicated. Never derive a type, brand,
+  category, or fee from string matching (`startsWith`, `contains`, prefix,
+  regex on an id). If you are pattern-matching an identifier to decide
+  behavior, the owning definition is missing -- create it.
+- **Separation of Concerns** -- Business logic vs presentation vs config
+  are separate. Visual settings, env reads, and I/O wiring never live
+  inside a business module. Reading `process.env` / `os.environ` deep in
+  core logic is a concern leak: take it as a parameter.
+- **Zero Coupling** -- No references to specific concrete IDs/brands/cases
+  in shared code. Adding a new case must not require editing unrelated
+  files. A consumer must not know a producer's internals. If "add a
+  provider" means "edit 3 functions", the design is wrong -- fix the
+  design, not add the 4th branch.
+- **Single Source of Truth** -- A value lives in exactly one place. A
+  string/number in 2+ places -> extract a named constant. Zero literals in
+  comparisons or branches -- compare against the constant. "It's just one
+  literal" is how the second copy is born.
+- **Naming** -- Intent-revealing. No encoded type prefixes leaking
+  implementation. Consistent across the codebase. A name that needs a
+  comment to explain it is the wrong name.
+- **No Trash** -- No dead or commented-out code, no legacy aliases, no
+  "keep it just in case", no workarounds left in. Renamed something? Update
+  ALL references now. "Someone might still call it" -> find out (grep); an
+  unknown caller is not a reason to keep dead code, it is a reason to
+  search.
+- **Impact Analysis** -- Before a change, list what depends on it: callers,
+  build scripts, config, data files, public signature consumers, docs.
+  Verify each. A signature change with unverified callers is a regression
+  waiting to ship.
+- **Safe Refactoring** -- One concern per commit. After changing a
+  struct/signature, update ALL constructors and callers in the same
+  change. Verify before commit -- do not mix a refactor with a feature.
+- **One Responsibility Per File** -- If you describe a file with "and", it
+  does too much. Module entrypoints are re-exports only. A match/switch/if
+  chain that grows with every new case belongs split per-case behind an
+  interface. New concern -> new file, not a new branch in a god file.
+
+## LAWs (non-negotiable, language-agnostic)
+
+These are not guidelines. They do not bend for a deadline, a tech lead, a
+PM, a demo, sunk cost, or "it's late". If an instruction conflicts with a
+LAW, state the conflict in one sentence and follow the LAW; an authority
+can change priorities, not the laws of correctness.
+
+1. **RED-first TDD.** Before touching production code, write the test that
+   proves the bug or validates the feature. Run it. SEE it fail (RED) for
+   the right reason. Only then write production code (GREEN). A test
+   written after the fix, passing immediately, proves nothing -- it is
+   forbidden. An existing failing test is not your RED unless YOU ran it
+   and watched it fail for THIS reason. Applies to "trivial" fixes too.
+2. **Docs always synced, same commit.** Any change to behavior, public API,
+   structure, or version updates its docs (README, CHANGELOG, skill,
+   inline contract) in the SAME commit. "Docs in a follow-up PR" is a
+   defect even if a reviewer approves it -- a doc that lies about shipped
+   behavior breaks the next reader.
+3. **Verify before claiming done.** Run the verifying command and read its
+   output before saying fixed/passing/complete. Confidence from reading
+   the code is a hypothesis, not evidence. "I'm sure it passes" is not
+   "I ran it and it passed".
+4. **No silent fallback / no masking.** An honest, actionable error beats a
+   silent substitution that returns a different result. Never mask an
+   infra/tool/environment failure as if it were a code result. Fail loud,
+   fail specific.
+5. **No skipped tests to go green.** Never skip/ignore/xfail/comment-out a
+   test, lower a threshold, or pass `--no-verify` to make a gate green.
+   Root-cause it or escalate with the real reason -- never disguise red as
+   green. A skipped test is dead documentation, not a passing test.
+
+## Communication
+
+Default reply: 1-3 sentences. Problem before solution. No greeting, no
+preface, no recap of what the user just said, no "hope this helps". One
+recommendation, not a menu, unless options are requested. Tables/bullets
+only when the content is mechanical reference. Expand only when explicitly
+asked ("explain in detail", "list the options").
+
+## Rationalizations -- and the reality
+
+Populated from real subagent output under combined time + sunk-cost +
+authority + exhaustion pressure (RED phase). If you catch yourself forming
+one of these, you are about to violate a rule. Stop.
+
+| Excuse (verbatim pattern) | Reality |
+|---|---|
+| "The lead/PM/senior said skip the test / docs / cleanup, they own the release" | Authority sets priorities, not correctness. A LAW does not have an authority exception. State the conflict in one sentence and follow the LAW. |
+| "I already spent an hour and the train/demo is in N minutes" | Sunk cost and a deadline are not evidence the shortcut is safe. Time pressure is exactly when discipline matters; the gate cannot see what you skip. |
+| "I'll add the test / extract the constant / write the docs / delete the dead code later" | "Later" is a session that ends. The orphan ships. Same commit or it does not count. |
+| "The codebase already does this (prefix inference / inline literal / legacy alias), so matching it is consistent" | Consistency with a defect propagates the defect. The existing wrong pattern is debt to stop, not a precedent to extend. |
+| "I read the code, I'm sure, no need to run it / see it fail" | Reading is a hypothesis. RED-first and verify-before-done require the run, not the conviction. Unverified confidence is how regressions ship. |
+| "Doing it right is over-engineering / scope creep for this deadline" | Ownership, one constant, synced docs, a failing test first are not gold-plating -- they are the baseline. Reframing the baseline as excess is the rationalization. |
+| "An unknown external caller might break, so keep the alias / commented code" | An unknown caller is a reason to grep, not to keep trash. Find the callers or confirm none; do not preserve dead code on a guess. |
+| "It's just one literal / one duplicate, DRY can wait" | The second copy is born exactly here. One place now, before the third copy makes it expensive. |
+
+## Red Flags -- STOP
+
+First-person thoughts that mean you are mid-violation. Each maps to the
+rule it breaks. If you think it, stop and do the rule instead.
+
+- "I'll add the test after" / "this is too simple to test" -> LAW 1
+  (RED-first TDD).
+- "The existing test already covers it, re-running is enough" -> LAW 1
+  (you did not see YOUR RED fail).
+- "Docs/CHANGELOG can be a follow-up PR" / "I'll note it in the PR" ->
+  LAW 2 (docs synced, same commit).
+- "It probably passes" / "I'm confident, no need to run" -> LAW 3
+  (verify before claiming done).
+- "I'll fall back to a default so it doesn't error" -> LAW 4 (no silent
+  masking).
+- "Skip/ignore this one test and file a ticket" / "lower the threshold
+  for now" -> LAW 5 (no skipped tests to go green).
+- "I'll just infer it from the name/prefix/id" -> Data Ownership.
+- "I'll read the env var right here, it's simpler" -> Separation of
+  Concerns.
+- "Adding this case means editing those other files too, fine" -> Zero
+  Coupling.
+- "It's only one literal in the comparison" -> Single Source of Truth.
+- "Leave the old alias / commented block just in case" -> No Trash.
+- "The lead/PM said it's fine" -> authority does not override a LAW;
+  state the conflict and follow the LAW.
+- "I already spent so long, just ship it" -> sunk cost is not evidence.
+
+## Known limitations
+
+- This skill enforces order and ownership; it cannot judge whether a test
+  asserts the right behavior. Pair it with the mechanical gate and with
+  reviewer judgment on test semantics.
+- Under extreme combined pressure an agent may still comply in letter
+  (writes a trivially-passing test, syncs a one-line doc) while missing
+  intent. The Red Flags target the letter; semantic adequacy of the test
+  and the doc remains a review responsibility.
+- It does not cover language- or tool-specific idioms by design (no Cargo,
+  no Slint, no framework rules). Those belong in a language-specific skill,
+  not here.
+
+## Living Document
+
+When the user corrects a methodology mistake: (1) identify the violated
+principle, (2) add the rule or anti-pattern HERE in the SAME turn, before
+closing, (3) commit the updated skill with its docs. Do not rely on
+memory; write it down. The same mistake must not recur.
