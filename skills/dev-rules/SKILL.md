@@ -56,10 +56,38 @@ Rust, shell, anything.
 - **Safe Refactoring** -- One concern per commit. After changing a
   struct/signature, update ALL constructors and callers in the same
   change. Verify before commit -- do not mix a refactor with a feature.
-- **One Responsibility Per File** -- If you describe a file with "and", it
-  does too much. Module entrypoints are re-exports only. A match/switch/if
-  chain that grows with every new case belongs split per-case behind an
-  interface. New concern -> new file, not a new branch in a god file.
+- **One Responsibility Per File (small units, parallel-safe)** -- If you
+  describe a file with "and", it does too much. Module entrypoints are
+  re-exports only. A match/switch/if chain that grows with every new case
+  belongs split per-case behind an interface. New concern -> new file, not
+  a new branch in a god file. Files, functions, and classes stay small on
+  purpose -- not for aesthetics, so multiple agents and developers can work
+  on different units at once with minimal merge conflict. A god file is a
+  serialization point.
+- **Library before custom (do not reinvent the wheel)** -- Before writing
+  N lines, search if a well-maintained library already solves the problem.
+  If a battle-tested lib makes the code smaller, clearer, and removes a
+  maintenance burden, use it -- regardless of language. Weigh: the
+  ongoing cost of a tiny added dependency is almost always less than the
+  cost of bespoke, untested, lookalike code. "We have time, let's build it
+  ourselves" is rarely true and almost never cheaper.
+- **Designed for testability** -- The unit you are writing must be
+  testable without a live network, a real database, a wall clock, or a
+  mounted filesystem. Pure functions where possible. Side effects pushed
+  to the edges. Dependencies passed in (constructor/argument), not
+  imported as globals/singletons inside the function. No hidden state. If
+  you cannot write a test for it without spinning up infrastructure, the
+  design is wrong, not the test.
+- **Domain at the center (DDD, always)** -- Domain-Driven Design is the
+  default architecture, not an option: the domain (entities, value
+  objects, aggregates, domain services, repository **interfaces**) is
+  pure and depends on **nothing concrete** -- no framework, no DB driver,
+  no HTTP client, no env. Application layer orchestrates use cases.
+  Infrastructure (DB, HTTP, queues, files, clocks) lives on the edge and
+  implements the domain's ports. Dependencies point INWARD (dependency
+  inversion). If an `import` in the domain layer reaches into an infra
+  package, the boundary is broken -- fix it now, before the coupling
+  spreads.
 
 ## LAWs (non-negotiable, language-agnostic)
 
@@ -116,6 +144,12 @@ one of these, you are about to violate a rule. Stop.
 | "Doing it right is over-engineering / scope creep for this deadline" | Ownership, one constant, synced docs, a failing test first are not gold-plating -- they are the baseline. Reframing the baseline as excess is the rationalization. |
 | "An unknown external caller might break, so keep the alias / commented code" | An unknown caller is a reason to grep, not to keep trash. Find the callers or confirm none; do not preserve dead code on a guess. |
 | "It's just one literal / one duplicate, DRY can wait" | The second copy is born exactly here. One place now, before the third copy makes it expensive. |
+| "Building it ourselves is faster than learning the lib" | "Faster" here means today, alone. The lib has tests, docs, maintenance; the bespoke copy has none of those. Adopt the lib, or write down a real reason it cannot be used. |
+| "Adding a dependency is bloat / scope creep" | A small, well-maintained dep that removes N lines of bespoke logic is the opposite of bloat. Treat the choice as a trade-off (size, surface, maintenance), not a reflex. |
+| "I'll add tests later, the design is fine" | Untestable design is a defect surfacing now. If you cannot test it without infra, the structure is wrong -- fix the structure, not the test plan. |
+| "Splitting into more files is over-engineering for this size" | Small units are not for aesthetics; they are how multiple agents/devs work in parallel without stepping on each other. A god file is a serialization point. |
+| "DDD / clean architecture is too much for this small thing" | The cost of layering when it is small is tiny; the cost of pulling apart a domain that imported an HTTP client three months later is huge. Domain stays pure from line one. |
+| "The domain can import this client/driver/env, it's just convenience" | One inward arrow is how the boundary dies. Move the dependency to an interface and inject it; the domain depends on nothing concrete -- always. |
 
 ## Red Flags -- STOP
 
@@ -144,6 +178,17 @@ rule it breaks. If you think it, stop and do the rule instead.
 - "The lead/PM said it's fine" -> authority does not override a LAW;
   state the conflict and follow the LAW.
 - "I already spent so long, just ship it" -> sunk cost is not evidence.
+- "I'll just code it, the lib is overkill" -> Library before custom.
+- "I'll add the dependency once it grows" -> "once it grows" is a session
+  that ends with bespoke code; choose now.
+- "I'll write the test once I get it working" -> Testable design (and LAW
+  1). If you cannot test it without infra, the design is wrong.
+- "One big file is fine for now" -> Small units / parallel-safe. A god
+  file is a merge-conflict serialization point.
+- "The domain can just call this driver/HTTP/env directly" -> DDD,
+  always: domain depends on NOTHING concrete; infra implements ports.
+- "Clean architecture is over-engineering for this size" -> the cost of
+  layering small is tiny; the cost of unwinding coupling later is huge.
 
 ## Known limitations
 
