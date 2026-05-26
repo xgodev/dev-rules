@@ -4,6 +4,16 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.2]
+
+### Fixed
+- `.claude-plugin/marketplace.json`: `owner` must be an object, not a
+  string. Changed `"owner": "xgodev"` to
+  `"owner": { "name": "xgodev", "url": "https://github.com/xgodev" }`
+  to match the marketplace schema used by sibling `xgodev/boost` and
+  `xgodev/quality-gate` plugins. Without this, repair tooling and strict
+  schema validators reject the marketplace entry.
+
 ## [0.2.1]
 
 ### Changed
