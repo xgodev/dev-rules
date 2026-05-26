@@ -32,13 +32,13 @@ Inside Claude Code:
 From the CLI:
 
 ```bash
-claude plugin update dev-rules@dev-rules
+claude plugin update dev-rules@xgodev-dev-rules
 ```
 
 If it reports `Plugin "..." not found`, specify the scope explicitly:
 
 ```bash
-claude plugin update dev-rules@dev-rules --scope user   # or: project | local | managed
+claude plugin update dev-rules@xgodev-dev-rules --scope user   # or: project | local | managed
 ```
 
 Use `claude plugin list` to find the scope where the plugin is installed.
@@ -55,7 +55,7 @@ Interactive, inside Claude Code:
 /plugin
 ```
 
--> **Marketplaces** -> select `dev-rules` -> **Enable auto-update**.
+-> **Marketplaces** -> select `xgodev-dev-rules` -> **Enable auto-update**.
 
 Or declaratively, in `~/.claude/settings.json` (global) -- add
 `"autoUpdate": true` to the marketplace entry under
@@ -64,7 +64,7 @@ Or declaratively, in `~/.claude/settings.json` (global) -- add
 ```json
 {
   "extraKnownMarketplaces": {
-    "dev-rules": {
+    "xgodev-dev-rules": {
       "source": {
         "source": "git",
         "url": "git@github.com:xgodev/dev-rules.git"

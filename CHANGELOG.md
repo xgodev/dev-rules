@@ -4,6 +4,15 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.1]
+
+### Changed
+- Renamed the marketplace identifier from `dev-rules` to `xgodev-dev-rules`
+  in `.claude-plugin/marketplace.json` to disambiguate the marketplace from
+  the plugin, which is also named `dev-rules`. The plugin name itself is
+  unchanged. Install path becomes `dev-rules@xgodev-dev-rules`; update
+  commands and the `extraKnownMarketplaces` key in README updated to match.
+
 ## [0.2.0]
 
 ### Added (STOP-checklist items, language-agnostic)
