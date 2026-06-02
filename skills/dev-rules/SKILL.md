@@ -139,6 +139,19 @@ can change priorities, not the laws of correctness.
    the real backend via env. The in-memory arm must wire nothing that
    dials the network (no eager ping that blocks boot). A service that
    can't start without a live DB/cache is a development-velocity defect.
+9. **Port against the live source of truth, not notes.** When porting or
+   reimplementing a contract (API rewrite, protocol reimpl, format mapping),
+   hit the LIVE source FIRST and build the new shape side-by-side with the
+   real response -- field presence, nullability, derivations, number formats.
+   Research notes / docs are a complement, never a substitute. Every observed
+   divergence becomes a fix + a TODO line, not a guess. A "derived" field
+   (computed by the original, not stored upstream) must be re-derived by
+   reading the original's formatter, not invented.
+10. **Fix tooling at the source repo, never the cache.** When a skill, plugin,
+    or generated dependency is wrong, fix it in the cloned SOURCE repo (and
+    contribute upstream), never in the ephemeral plugin cache -- a cache edit
+    is overwritten on the next update and never becomes a real contribution.
+    Locate the source first; the cache is read-only in practice.
 
 ## Communication
 
