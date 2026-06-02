@@ -119,6 +119,26 @@ can change priorities, not the laws of correctness.
    test, lower a threshold, or pass `--no-verify` to make a gate green.
    Root-cause it or escalate with the real reason -- never disguise red as
    green. A skipped test is dead documentation, not a passing test.
+6. **Secrets are never rendered.** No log line, config dump, diagnostic, or
+   error message prints a secret value (token, key, password). Redact at
+   the source -- mark the field hidden so the rendered value is `****`
+   while the in-memory value stays real. A secret in a log is a leak even
+   if the log is "private". Enable config/diagnostic visibility freely;
+   just make the secret fields self-mask.
+7. **Errors keep their classification to the edge.** Use typed/semantic
+   errors that the transport edge (HTTP/gRPC/GraphQL) maps to a code.
+   Never wrap an error in a way that erases the type the edge matches on
+   -- a generic string wrap that turns a NotFound into a 500 is a defect,
+   not a cosmetic one. Propagate the typed error; add context only with a
+   wrapper that preserves the classification (and the language's own
+   `Is`/`As`-style matching).
+8. **Local-runnable: no hard external dependency for dev.** Depend on a
+   port (interface), pick the implementation by config, and ship an
+   in-memory implementation so the service boots and runs with ZERO
+   external infra in dev. Dev default = in-memory; production overrides to
+   the real backend via env. The in-memory arm must wire nothing that
+   dials the network (no eager ping that blocks boot). A service that
+   can't start without a live DB/cache is a development-velocity defect.
 
 ## Communication
 

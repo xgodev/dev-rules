@@ -4,6 +4,14 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0]
+
+### Added — three language-agnostic LAWs
+
+- **LAW 6 — Secrets are never rendered.** No log/config-dump/diagnostic/error prints a secret value; redact at the source (self-masking field → `****`) so visibility can be enabled freely.
+- **LAW 7 — Errors keep their classification to the edge.** Use typed/semantic errors the transport edge maps to a code; never wrap in a way that erases the type (a NotFound silently becoming a 500 is a defect). Preserve the language's `Is`/`As`-style matching.
+- **LAW 8 — Local-runnable: no hard external dependency for dev.** Depend on a port, select the impl by config, ship an in-memory implementation; dev default = in-memory (arm wires nothing that dials the network), production overrides via env. A service that can't boot without a live DB/cache is a velocity defect.
+
 ## [0.2.2]
 
 ### Fixed
