@@ -110,7 +110,11 @@ can change priorities, not the laws of correctness.
 3. **Verify before claiming done.** Run the verifying command and read its
    output before saying fixed/passing/complete. Confidence from reading
    the code is a hypothesis, not evidence. "I'm sure it passes" is not
-   "I ran it and it passed".
+   "I ran it and it passed". When verifying means launching a process
+   (server, daemon, CLI), tear it down reliably afterwards by PID/port --
+   killing the launcher (`go run`, a wrapper script, the parent shell)
+   often leaves the spawned child alive, holding the port and breaking the
+   next run, which then looks like a fresh bug.
 4. **No silent fallback / no masking.** An honest, actionable error beats a
    silent substitution that returns a different result. Never mask an
    infra/tool/environment failure as if it were a code result. Fail loud,

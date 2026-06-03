@@ -1,6 +1,6 @@
 {
   "name": "dev-rules",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A macro, language-agnostic engineering-discipline skill that governs how code is written, edited, and refactored: data ownership, zero coupling, single source of truth, RED-first TDD, docs-synced commits, and verify-before-done.",
   "author": {
     "name": "xgodev"

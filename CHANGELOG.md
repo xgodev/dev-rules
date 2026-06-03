@@ -4,6 +4,12 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.1]
+
+### Added
+
+- **LAW 3** now covers process teardown: when verification means launching a process (server/daemon/CLI), tear it down by PID/port — killing the launcher (`go run`, wrapper, parent shell) leaves the spawned child alive holding the port, which then looks like a fresh bug on the next run.
+
 ## [0.3.0]
 
 ### Added — three language-agnostic LAWs
