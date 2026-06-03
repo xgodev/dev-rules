@@ -151,6 +151,14 @@ can change priorities, not the laws of correctness.
    divergence becomes a fix + a TODO line, not a guess. A "derived" field
    (computed by the original, not stored upstream) must be re-derived by
    reading the original's formatter, not invented.
+   **Corollary — prove the reference actually answered before trusting it.**
+   A missing/empty/error response from the live source is NOT a contract
+   value. If the port-forward, gateway, or auth wasn't returning, an empty
+   body is "no data", not "null". Before concluding `field == null` (or any
+   shape), assert a known non-empty field in the SAME response (e.g. an id,
+   a required flag) to prove the source responded; cross-check ≥2 records and
+   the introspected type. Concluding from a silent/broken reference is the
+   same guessing this LAW forbids -- it just hides behind a real-looking call.
 10. **Fix tooling at the source repo, never the cache.** When a skill, plugin,
     or generated dependency is wrong, fix it in the cloned SOURCE repo (and
     contribute upstream), never in the ephemeral plugin cache -- a cache edit
