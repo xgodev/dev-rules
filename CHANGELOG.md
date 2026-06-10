@@ -4,19 +4,42 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0]
+
+### Added
+
+- **LAW 11 -- The test is the oracle; never edit it to match the bug.** A
+  failing test is a finding, not an obstacle. Changing an assertion, expected
+  value, input, or tolerance so a test passes against output you have not
+  proven correct hides the defect the test caught. The discriminator: change a
+  test to match the SPEC (with proof + its own RED), never to match the
+  OUTPUT. Loosening `==` to `>=`, widening a tolerance, deleting an assert, or
+  narrowing the input are the same forbidden act; reaching for skip/quarantine
+  "to unblock" is the same crime under LAW 5. Rationalization table and Red
+  Flags updated with the two patterns observed in baseline pressure testing
+  ("just align `want` to what the code returns" and the incident-pressure
+  `t.Skip` reflex).
+
+### Fixed
+
+- ASCII compliance sweep across the docs, per the repo's ASCII-only hard rule:
+  the LAW 9 corollary in the skill body (em-dash -> `--`, `>=2` -> `>= 2`) and
+  the historical `0.3.x` CHANGELOG entries (em-dashes and `->` arrows). Skill
+  body and CHANGELOG are now non-ASCII-clean.
+
 ## [0.3.1]
 
 ### Added
 
-- **LAW 3** now covers process teardown: when verification means launching a process (server/daemon/CLI), tear it down by PID/port — killing the launcher (`go run`, wrapper, parent shell) leaves the spawned child alive holding the port, which then looks like a fresh bug on the next run.
+- **LAW 3** now covers process teardown: when verification means launching a process (server/daemon/CLI), tear it down by PID/port -- killing the launcher (`go run`, wrapper, parent shell) leaves the spawned child alive holding the port, which then looks like a fresh bug on the next run.
 
 ## [0.3.0]
 
-### Added — three language-agnostic LAWs
+### Added -- three language-agnostic LAWs
 
-- **LAW 6 — Secrets are never rendered.** No log/config-dump/diagnostic/error prints a secret value; redact at the source (self-masking field → `****`) so visibility can be enabled freely.
-- **LAW 7 — Errors keep their classification to the edge.** Use typed/semantic errors the transport edge maps to a code; never wrap in a way that erases the type (a NotFound silently becoming a 500 is a defect). Preserve the language's `Is`/`As`-style matching.
-- **LAW 8 — Local-runnable: no hard external dependency for dev.** Depend on a port, select the impl by config, ship an in-memory implementation; dev default = in-memory (arm wires nothing that dials the network), production overrides via env. A service that can't boot without a live DB/cache is a velocity defect.
+- **LAW 6 -- Secrets are never rendered.** No log/config-dump/diagnostic/error prints a secret value; redact at the source (self-masking field -> `****`) so visibility can be enabled freely.
+- **LAW 7 -- Errors keep their classification to the edge.** Use typed/semantic errors the transport edge maps to a code; never wrap in a way that erases the type (a NotFound silently becoming a 500 is a defect). Preserve the language's `Is`/`As`-style matching.
+- **LAW 8 -- Local-runnable: no hard external dependency for dev.** Depend on a port, select the impl by config, ship an in-memory implementation; dev default = in-memory (arm wires nothing that dials the network), production overrides via env. A service that can't boot without a live DB/cache is a velocity defect.
 
 ## [0.2.2]
 

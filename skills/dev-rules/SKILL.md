@@ -151,12 +151,12 @@ can change priorities, not the laws of correctness.
    divergence becomes a fix + a TODO line, not a guess. A "derived" field
    (computed by the original, not stored upstream) must be re-derived by
    reading the original's formatter, not invented.
-   **Corollary — prove the reference actually answered before trusting it.**
+   **Corollary -- prove the reference actually answered before trusting it.**
    A missing/empty/error response from the live source is NOT a contract
    value. If the port-forward, gateway, or auth wasn't returning, an empty
    body is "no data", not "null". Before concluding `field == null` (or any
    shape), assert a known non-empty field in the SAME response (e.g. an id,
-   a required flag) to prove the source responded; cross-check ≥2 records and
+   a required flag) to prove the source responded; cross-check >= 2 records and
    the introspected type. Concluding from a silent/broken reference is the
    same guessing this LAW forbids -- it just hides behind a real-looking call.
 10. **Fix tooling at the source repo, never the cache.** When a skill, plugin,
@@ -164,6 +164,23 @@ can change priorities, not the laws of correctness.
     contribute upstream), never in the ephemeral plugin cache -- a cache edit
     is overwritten on the next update and never becomes a real contribution.
     Locate the source first; the cache is read-only in practice.
+11. **The test is the oracle -- never edit it to match the bug.** A failing
+    test is a finding, not an obstacle. NEVER change a test's expected value,
+    assertion, input, or tolerance so it passes against output you have not
+    proven correct -- that turns a loud, true failure into a silent lie signed
+    with your name, and hiding the error is the whole crime. "The expectation
+    looks stale, just align `want` to what the code returns" is the exact move
+    this forbids: matching the assertion to the OUTPUT hides the defect the
+    test caught. The one discriminator: am I changing the test to match the
+    SPEC, or to match the OUTPUT? You MAY change a test only when you can prove
+    the new expectation is the intended behavior from a source of truth (spec,
+    contract, the owner, a re-derivation) -- and that is a behavior change with
+    its own RED (LAW 1), not a quick green. Editing `want`, loosening `==` to
+    `>=`, deleting an assert, widening a tolerance, or narrowing the input
+    until it passes are all the same forbidden act. Disabling instead of
+    editing ("skip/xfail/quarantine just to unblock") is the same crime under
+    LAW 5. No deadline, incident, or waiting room changes this -- an honest red
+    beats a green that ships the defect.
 
 ## Communication
 
@@ -195,6 +212,8 @@ one of these, you are about to violate a rule. Stop.
 | "Splitting into more files is over-engineering for this size" | Small units are not for aesthetics; they are how multiple agents/devs work in parallel without stepping on each other. A god file is a serialization point. |
 | "DDD / clean architecture is too much for this small thing" | The cost of layering when it is small is tiny; the cost of pulling apart a domain that imported an HTTP client three months later is huge. Domain stays pure from line one. |
 | "The domain can import this client/driver/env, it's just convenience" | One inward arrow is how the boundary dies. Move the dependency to an interface and inject it; the domain depends on nothing concrete -- always. |
+| "The test expectation looks stale / the author left, just update `want` to what the code returns and unblock us" | Changing the assertion to match the OUTPUT asserts the output is correct -- a thing you have NOT proven. That is not fixing a stale test, it is signing off on the bug. Change a test only to match the SPEC (with proof + its own RED), never to match what the code happens to emit. |
+| "Editing the assertion is risky, so I'll just `t.Skip`/quarantine it to unblock the unrelated hotfix" | Reaching for skip under incident pressure is still disabling the oracle (LAW 5). A quarantined test is not green, it is silenced. Root-cause or escalate with the real reason; do not trade an assertion edit for a disable. |
 
 ## Red Flags -- STOP
 
@@ -213,6 +232,9 @@ rule it breaks. If you think it, stop and do the rule instead.
   masking).
 - "Skip/ignore this one test and file a ticket" / "lower the threshold
   for now" -> LAW 5 (no skipped tests to go green).
+- "Just align the expected value to what the code returns" / "loosen the
+  assert / widen the tolerance so it passes" -> LAW 11 (the test is the
+  oracle; match the spec, never the output).
 - "I'll just infer it from the name/prefix/id" -> Data Ownership.
 - "I'll read the env var right here, it's simpler" -> Separation of
   Concerns.
