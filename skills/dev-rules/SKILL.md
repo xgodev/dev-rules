@@ -181,6 +181,26 @@ can change priorities, not the laws of correctness.
     editing ("skip/xfail/quarantine just to unblock") is the same crime under
     LAW 5. No deadline, incident, or waiting room changes this -- an honest red
     beats a green that ships the defect.
+12. **Concurrency is a premise, not an optimization.** Any system that
+    processes independent work items (jobs, events, requests, files, URLs)
+    is designed AND shipped concurrent from line one: bounded worker pool or
+    async fan-out, parallel-safe units, no shared mutable state, idempotent
+    effects. A hard-coded sequential loop over independent items is a design
+    defect, not a simplification -- a serial architecture hard-codes an
+    assumption every later component silently depends on, and retrofitting
+    concurrency then is a rewrite, not a tune. "Low volume today" does not
+    buy a serial default. The trap to refuse explicitly: building a
+    "concurrency-ready" design and then defaulting the pool to 1 worker. A
+    concurrent path that is not the default is never exercised, never
+    tested, and rots until the day it is needed -- ship with a concurrent
+    default (N > 1) so the tested path IS the concurrent path. Sequential
+    execution is the exception and requires a stated, real constraint
+    (ordering dependency, transactional invariant, upstream rate limit) --
+    and even then it is bounded concurrency tuned DOWN to 1 on top of a
+    parallel-safe design, never an architecture that assumes a single
+    thread. Code that "would break if run concurrently" is not simpler; it
+    is hiding defects (shared state, non-idempotent writes) that running
+    concurrent from day one would have surfaced while the system was small.
 
 ## Communication
 
@@ -214,6 +234,9 @@ one of these, you are about to violate a rule. Stop.
 | "The domain can import this client/driver/env, it's just convenience" | One inward arrow is how the boundary dies. Move the dependency to an interface and inject it; the domain depends on nothing concrete -- always. |
 | "The test expectation looks stale / the author left, just update `want` to what the code returns and unblock us" | Changing the assertion to match the OUTPUT asserts the output is correct -- a thing you have NOT proven. That is not fixing a stale test, it is signing off on the bug. Change a test only to match the SPEC (with proof + its own RED), never to match what the code happens to emit. |
 | "Editing the assertion is risky, so I'll just `t.Skip`/quarantine it to unblock the unrelated hotfix" | Reaching for skip under incident pressure is still disabling the oracle (LAW 5). A quarantined test is not green, it is silenced. Root-cause or escalate with the real reason; do not trade an assertion edit for a disable. |
+| "Concurrency now is premature optimization / speculation; volume today buys nothing measurable" | Concurrency is not an optimization, it is the execution model (LAW 12). A serial architecture hard-codes an assumption every later component depends on; undoing it is a rewrite. Design parallel-safe now and ship concurrent now; tune N, never retrofit the model. |
+| "I'll make it concurrency-READY but default to 1 worker; raising it later is a config change, not a redesign" | The path that is not the default is the path that is never run, never tested, and rots. A pool defaulted to 1 is a serial system wearing a config costume. Ship N > 1 so the exercised path IS the concurrent path; tune DOWN to 1 only for a stated, real constraint. |
+| "Concurrency adds untested failure modes (races, interleaving); sequential is safer" | Those failure modes already exist as latent defects -- shared mutable state, non-idempotent writes -- merely hidden by serial luck. Running concurrent from day one surfaces them while the system is small and cheap to fix; serial-by-default ships them. |
 
 ## Red Flags -- STOP
 
@@ -235,6 +258,13 @@ rule it breaks. If you think it, stop and do the rule instead.
 - "Just align the expected value to what the code returns" / "loosen the
   assert / widen the tolerance so it passes" -> LAW 11 (the test is the
   oracle; match the spec, never the output).
+- "A simple for-loop over the items is enough for now" / "single-threaded
+  is simpler to reason about" -> LAW 12 (concurrency is a premise; a
+  serial loop over independent items is a design defect).
+- "I'll default the workers to 1 and we can raise it later" -> LAW 12
+  (the non-default path is never exercised; ship concurrent by default).
+- "Concurrency would be speculative at this volume" -> LAW 12 (it is the
+  execution model, not a tuning knob; retrofitting it is a rewrite).
 - "I'll just infer it from the name/prefix/id" -> Data Ownership.
 - "I'll read the env var right here, it's simpler" -> Separation of
   Concerns.

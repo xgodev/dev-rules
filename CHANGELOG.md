@@ -4,6 +4,27 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.0]
+
+### Added
+
+- **LAW 12 -- Concurrency is a premise, not an optimization.** Any system
+  processing independent work items (jobs, events, requests, files, URLs) is
+  designed AND shipped concurrent from line one: bounded worker pool or async
+  fan-out, parallel-safe units, no shared mutable state, idempotent effects.
+  A hard-coded sequential loop over independent items is a design defect;
+  retrofitting concurrency onto a serial architecture is a rewrite, not a
+  tune. The LAW explicitly refuses the trap observed in baseline pressure
+  testing: a "concurrency-ready" design defaulted to 1 worker -- the
+  non-default path is never exercised and rots, so the shipped default must
+  be N > 1. Sequential execution is the exception and requires a stated,
+  real constraint (ordering dependency, transactional invariant, upstream
+  rate limit), implemented as bounded concurrency tuned down to 1, never as
+  an architecture that assumes a single thread. Rationalization table and
+  Red Flags updated with the baseline patterns ("concurrency now is
+  premature optimization", "default to 1 worker, raising it later is just a
+  config change", "concurrency adds untested failure modes").
+
 ## [0.4.0]
 
 ### Added

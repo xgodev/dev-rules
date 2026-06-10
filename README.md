@@ -4,7 +4,8 @@ A single macro, **language-agnostic engineering-discipline** Claude Code
 plugin. It encodes how to write, edit, and refactor code well in any
 language -- the methodology and decision rules a mechanical gate cannot
 measure (data ownership, zero coupling, single source of truth, RED-first
-TDD, docs-synced commits, honest failure, verify-before-done).
+TDD, docs-synced commits, honest failure, verify-before-done,
+concurrency-first design).
 
 It is the companion to [`xgodev/quality-gate`](https://github.com/xgodev/quality-gate):
 the gate catches mechanical metric regressions (fmt, lint, build, test,
