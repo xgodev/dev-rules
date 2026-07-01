@@ -44,6 +44,9 @@ if denied "$out"; then echo "FAIL: test file must be allowed"; fail=1; else echo
 reset; mkdir -p "$SBX/.dev-rules"; : >"$SBX/.dev-rules/.mode-feature"
 out="$(run Read '{"tool_name":"Read","tool_input":{"file_path":"internal/x.go"}}')"
 if denied "$out"; then echo "FAIL: feature mode should allow reads"; fail=1; else echo "ok  : feature mode allows reads"; fi
+# 3b. A read that redirects stderr (2>&1) must NOT be misread as a write and blocked.
+out="$(run Bash '{"tool_name":"Bash","tool_input":{"command":"cat src/x.ts 2>&1"}}')"
+if denied "$out"; then echo "FAIL: bash read with 2>&1 wrongly blocked in feature mode"; fail=1; else echo "ok  : bash read with 2>&1 allowed (feature mode)"; fi
 
 # 4. .mode-feature but EDIT still blocked (no RED yet).
 out="$(run Edit '{"tool_name":"Edit","tool_input":{"file_path":"internal/x.go"}}')"

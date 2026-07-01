@@ -42,10 +42,10 @@ case "$tool" in
   Bash)
     cmd="$(printf '%s' "$input" | jq -r '.tool_input.command // empty')"
     c=" $cmd "   # pad so a leading/trailing command token still matches the spaced arms;
-                 # ">"* catches file redirects (> >> >file); 2>&1 has no production target
-                 # so hits_prod filters it out harmlessly.
+                 # ">"[!&] catches file redirects (> >> >file) but NOT 2>&1 / &> -- so a
+                 # read that merely redirects stderr is not misclassified as a write.
     case "$c" in
-      *">"*|*" sed -i"*|*" tee "*|*" dd "*)
+      *">"[!\&]*|*" sed -i"*|*" tee "*|*" dd "*)
         intent="write"
         # Normalize: replace > with a space so tight redirects like "echo x>file"
         # split into separate whitespace-delimited tokens for hits_prod scanning.
