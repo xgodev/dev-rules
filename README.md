@@ -111,8 +111,8 @@ see it RED -> `touch .dev-rules/.red-first-unlocked` -> read code and fix.
 and plan (`writing-plans`) -> per unit, write the failing test -> RED ->
 `touch .dev-rules/.red-first-unlocked` -> write the code.
 
-A `fix(`/`feat(`/`bugfix(` commit auto-clears both sentinels, so the next cycle
-re-brainstorms and re-REDs.
+A cycle-closing commit (`fix(`/`feat(`/`bugfix(`/`Fix #`/`Fixes #`) auto-clears
+both sentinels, so the next cycle re-brainstorms and re-REDs.
 
 **Per-repo config / opt-out (`.dev-rules.json` at the repo root):**
 
@@ -125,5 +125,5 @@ re-brainstorms and re-REDs.
 ```
 
 `"enabled": false` disables all gating for the project. Omit the file to use
-built-in detection (production segments: `src lib app internal pkg crates
+built-in detection (production segments: `src lib app cmd internal pkg crates
 domain`, minus test/docs/config).

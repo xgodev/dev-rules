@@ -18,6 +18,8 @@ ok dr_is_production "internal/x.go"
 ok dr_is_production "app/x.py"
 ok dr_is_production "src/x.ts"
 ok dr_is_production "crates/c/src/x.rs"
+ok dr_is_production "cmd/server/main.go"   # Go cmd/ entrypoint layout
+ok dr_is_production "internal"             # bare production-dir token (e.g. a Grep path)
 # not production: tests, docs, config
 no dr_is_production "internal/foo_test.go"
 no dr_is_production "README.md"

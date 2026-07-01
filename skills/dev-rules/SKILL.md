@@ -218,9 +218,10 @@ can change priorities, not the laws of correctness.
     ships hooks that enforce the ORDER deterministically: production code is
     read-locked until you declare the feature flow (`.dev-rules/.mode-feature`)
     or a failing test exists (`.dev-rules/.red-first-unlocked`), and production
-    EDITS are blocked until the test exists; a cycle-closing `fix(`/`feat(`
-    commit re-arms both. The gates prove order and existence, never quality --
-    a sound plan and a meaningful test stay your job (and the reviewer's).
+    EDITS are blocked until the test exists; a cycle-closing commit
+    (`fix(`/`feat(`/`bugfix(`/`Fix #`/`Fixes #`) re-arms both. The gates prove
+    order and existence, never quality -- a sound plan and a meaningful test
+    stay your job (and the reviewer's).
 
 ## Communication
 

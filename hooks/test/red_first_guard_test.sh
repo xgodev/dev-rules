@@ -62,4 +62,8 @@ reset
 out="$(run Edit '{"tool_name":"Edit","tool_input":{"file_path":"README.md"}}')"
 if denied "$out"; then echo "FAIL: docs must be allowed"; fail=1; else echo "ok  : docs allowed"; fi
 
+# Malformed / empty stdin must not crash or block -- clean allow (exit 0, no deny).
+printf '%s' 'not-json' | bash "$GUARD" >/dev/null 2>&1; rc=$?
+if [ "$rc" = 0 ]; then echo "ok  : malformed stdin exits 0 (allow)"; else echo "FAIL: malformed stdin exit $rc"; fail=1; fi
+
 exit $fail

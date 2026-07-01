@@ -4,7 +4,7 @@
 # root ($CLAUDE_PROJECT_DIR); otherwise uses built-in defaults. Best-effort
 # and tunable per-repo via .dev-rules.json (see README).
 
-DR_DEFAULT_PROD_SEGMENTS="src lib app internal pkg crates domain"
+DR_DEFAULT_PROD_SEGMENTS="src lib app cmd internal pkg crates domain"
 
 # dr_config <jq-filter> <default> -- read a key from .dev-rules.json if present.
 dr_config() {
@@ -62,7 +62,7 @@ EOF
   # Built-in default: a known production segment appears in the path.
   local seg
   for seg in $DR_DEFAULT_PROD_SEGMENTS; do
-    case "$path" in "$seg"/*|*/"$seg"/*) return 0 ;; esac
+    case "$path" in "$seg"|"$seg"/*|*/"$seg"|*/"$seg"/*) return 0 ;; esac
   done
   return 1
 }

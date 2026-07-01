@@ -19,6 +19,10 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 0
 fi
 
+# Malformed / empty stdin: nothing to inspect -> allow cleanly (never crash on a
+# jq parse error). Claude Code always sends valid JSON; this is belt-and-braces.
+printf '%s' "$input" | jq -e . >/dev/null 2>&1 || exit 0
+
 tool="$(printf '%s' "$input" | jq -r '.tool_name // empty')"
 proj="${CLAUDE_PROJECT_DIR:-$(printf '%s' "$input" | jq -r '.cwd // "."')}"
 
@@ -58,11 +62,11 @@ esac
 [ -n "$target" ] || exit 0
 
 # Production implicated (and not a test file)?
-hits_prod=1
+prod_touched=""
 for tok in $target; do
-  if dr_is_production "$tok"; then hits_prod=0; break; fi
+  if dr_is_production "$tok"; then prod_touched="yes"; break; fi
 done
-[ "$hits_prod" = 0 ] || exit 0
+[ -n "$prod_touched" ] || exit 0
 
 deny() {
   jq -nc --arg r "$1" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'

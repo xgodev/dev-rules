@@ -4,6 +4,30 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.1]
+
+### Changed
+
+- **Production detection now covers the `cmd/` entrypoint layout** and bare
+  directory tokens. `cmd` is added to the default production segments (common in
+  Go: `cmd/<name>/main.go`), and a bare segment token (e.g. a `Grep` with
+  `path="internal"`) is now classed as production, not just `.../internal/...`.
+
+### Fixed
+
+- **`red-first-guard.sh` no longer crashes on malformed stdin.** Invalid/empty
+  input is validated up front and results in a clean allow (exit 0) instead of a
+  `jq` parse error (exit 5).
+- **Docs now name the full set of cycle-closing commit patterns.** README and the
+  LAW 13 text enumerate `fix(`/`feat(`/`bugfix(`/`Fix #`/`Fixes #` (the re-armer
+  already honored all five; the docs had listed a subset).
+
+### Internal
+
+- Renamed the guard's production-hit flag to `prod_touched` (clearer than the
+  inverted `hits_prod`); made hook entrypoint exec bits consistent
+  (`clear-after-commit.sh` -> 0755, matching `red-first-guard.sh`).
+
 ## [0.6.0]
 
 ### Added
