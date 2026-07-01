@@ -99,7 +99,7 @@ under `.solvers/*/.dev-rules/`):
 | Sentinel | Production READ | Production EDIT |
 |---|---|---|
 | none (bug default) | blocked | blocked |
-| `.mode-feature` | allowed | blocked |
+| `.mode-feature` | allowed | allowed |
 | `.red-first-unlocked` | allowed | allowed |
 
 Test files, docs, and config are never blocked.
@@ -107,9 +107,10 @@ Test files, docs, and config are never blocked.
 **Bug flow:** brainstorm with the user -> write the failing test (allowed) ->
 see it RED -> `touch .dev-rules/.red-first-unlocked` -> read code and fix.
 
-**Feature flow:** brainstorm -> `touch .dev-rules/.mode-feature` -> read code
-and plan (`writing-plans`) -> per unit, write the failing test -> RED ->
-`touch .dev-rules/.red-first-unlocked` -> write the code.
+**Feature flow:** brainstorm -> `touch .dev-rules/.mode-feature` -> read code,
+plan (`writing-plans`), and write the code. Red-first is the bug gate, so feature
+mode unlocks edits too; TDD per unit is still expected, governed by the plan and
+review rather than the hook.
 
 A cycle-closing commit (`fix(`/`feat(`/`bugfix(`/`Fix #`/`Fixes #`) auto-clears
 both sentinels, so the next cycle re-brainstorms and re-REDs.

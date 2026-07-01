@@ -4,6 +4,19 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.2]
+
+### Changed
+
+- **Red-first is strictly the BUG gate now.** Declaring the feature flow
+  (`.dev-rules/.mode-feature`) unlocks BOTH reading AND editing production code;
+  previously it unlocked reads but still blocked edits until a RED test. Only the
+  bug default (no sentinel) stays read+edit locked until
+  `.dev-rules/.red-first-unlocked`. Features are governed by plan-first (LAW 13)
+  and TDD judgment, not by the red-first hook -- consistent with the "no hard
+  plan-gate" design: the hook enforces the bug discipline, the plan enforces the
+  feature discipline.
+
 ## [0.6.1]
 
 ### Changed

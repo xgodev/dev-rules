@@ -48,9 +48,9 @@ if denied "$out"; then echo "FAIL: feature mode should allow reads"; fail=1; els
 out="$(run Bash '{"tool_name":"Bash","tool_input":{"command":"cat src/x.ts 2>&1"}}')"
 if denied "$out"; then echo "FAIL: bash read with 2>&1 wrongly blocked in feature mode"; fail=1; else echo "ok  : bash read with 2>&1 allowed (feature mode)"; fi
 
-# 4. .mode-feature but EDIT still blocked (no RED yet).
+# 4. .mode-feature => EDIT allowed too (red-first is BUG-only; feature is plan-governed).
 out="$(run Edit '{"tool_name":"Edit","tool_input":{"file_path":"internal/x.go"}}')"
-if denied "$out"; then echo "ok  : edit blocked without RED"; else echo "FAIL: edit must be blocked without RED"; fail=1; fi
+if denied "$out"; then echo "FAIL: feature mode should allow edits"; fail=1; else echo "ok  : feature mode allows edits"; fi
 
 # 5. .red-first-unlocked => edit allowed.
 reset; mkdir -p "$SBX/.dev-rules"; : >"$SBX/.dev-rules/.red-first-unlocked"

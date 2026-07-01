@@ -75,7 +75,8 @@ deny() {
 
 if [ "$intent" = "write" ]; then
   red_unlocked && exit 0
-  deny "RED-first (dev-rules LAW 1): no production EDIT before a failing test exists. Brainstorm the problem, write the test that encodes the INTENDED behavior, run it, SEE it fail (RED), then create .dev-rules/.red-first-unlocked and proceed."
+  feature_mode && exit 0
+  deny "Production EDIT locked (dev-rules). BUG (default): no edit before a failing test -- write the test for the INTENDED behavior, run it, SEE it fail (RED), then create .dev-rules/.red-first-unlocked. FEATURE/IMPROVEMENT: create .dev-rules/.mode-feature after brainstorming (a feature is governed by the plan, not by RED)."
 else
   red_unlocked && exit 0
   feature_mode && exit 0

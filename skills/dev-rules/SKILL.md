@@ -215,10 +215,11 @@ can change priorities, not the laws of correctness.
     just code it, it's small" is the failure mode this LAW stops -- no
     triviality exception, same as LAW 1; the brainstorm can be three sentences
     and the plan three bullets, but understanding must precede code. The plugin
-    ships hooks that enforce the ORDER deterministically: production code is
-    read-locked until you declare the feature flow (`.dev-rules/.mode-feature`)
-    or a failing test exists (`.dev-rules/.red-first-unlocked`), and production
-    EDITS are blocked until the test exists; a cycle-closing commit
+    ships a hook that enforces the ORDER deterministically for the BUG flow:
+    production code is read- AND edit-locked until a failing test exists
+    (`.dev-rules/.red-first-unlocked`). Declaring the feature flow
+    (`.dev-rules/.mode-feature`) lifts that lock -- red-first is the bug gate;
+    features are governed by the plan (LAW), not by RED. A cycle-closing commit
     (`fix(`/`feat(`/`bugfix(`/`Fix #`/`Fixes #`) re-arms both. The gates prove
     order and existence, never quality -- a sound plan and a meaningful test
     stay your job (and the reviewer's).
