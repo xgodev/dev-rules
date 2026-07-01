@@ -41,9 +41,16 @@ case "$tool" in
   Edit|Write) intent="write"; target="$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')" ;;
   Bash)
     cmd="$(printf '%s' "$input" | jq -r '.tool_input.command // empty')"
-    case "$cmd" in
-      *' > '*|*' >> '*|*"sed -i"*|*" tee "*|*" dd "*) intent="write"; target="$cmd" ;;
-      *grep*|*" rg "*|*" cat "*|*" sed "*|*" awk "*|*" head "*|*" tail "*|*" less "*) intent="read"; target="$cmd" ;;
+    c=" $cmd "   # pad so a leading/trailing command token still matches the spaced arms;
+                 # ">"* catches file redirects (> >> >file); 2>&1 has no production target
+                 # so hits_prod filters it out harmlessly.
+    case "$c" in
+      *">"*|*" sed -i"*|*" tee "*|*" dd "*)
+        intent="write"
+        # Normalize: replace > with a space so tight redirects like "echo x>file"
+        # split into separate whitespace-delimited tokens for hits_prod scanning.
+        target="$(printf '%s' "$cmd" | tr '>' ' ')" ;;
+      *" grep "*|*" rg "*|*" cat "*|*" sed "*|*" awk "*|*" head "*|*" tail "*|*" less "*|*" nl "*) intent="read"; target="$cmd" ;;
       *) exit 0 ;;
     esac ;;
   *) exit 0 ;;

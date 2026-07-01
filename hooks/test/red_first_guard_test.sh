@@ -25,6 +25,16 @@ if denied "$out"; then echo "ok  : edit prod blocked (bug default)"; else echo "
 out="$(run Write '{"tool_name":"Write","tool_input":{"file_path":"internal/x.go"}}')"
 if denied "$out"; then echo "ok  : write prod blocked (bug default)"; else echo "FAIL: write prod should be blocked (no sentinel)"; fail=1; fi
 
+# 1c. Bash path (bug default): shell read/write of production is gated too; docs allowed.
+out="$(run Bash '{"tool_name":"Bash","tool_input":{"command":"cat internal/x.go"}}')"
+if denied "$out"; then echo "ok  : bash cat prod blocked"; else echo "FAIL: bash cat prod should block"; fail=1; fi
+out="$(run Bash '{"tool_name":"Bash","tool_input":{"command":"rg foo internal/x.go"}}')"
+if denied "$out"; then echo "ok  : bash rg prod blocked"; else echo "FAIL: bash rg prod should block"; fail=1; fi
+out="$(run Bash '{"tool_name":"Bash","tool_input":{"command":"echo x>internal/x.go"}}')"
+if denied "$out"; then echo "ok  : bash redirect prod blocked"; else echo "FAIL: bash redirect prod should block"; fail=1; fi
+out="$(run Bash '{"tool_name":"Bash","tool_input":{"command":"cat README.md"}}')"
+if denied "$out"; then echo "FAIL: bash cat docs should be allowed"; fail=1; else echo "ok  : bash cat docs allowed"; fi
+
 # 2. Test file always allowed (no deny).
 reset
 out="$(run Read '{"tool_name":"Read","tool_input":{"file_path":"internal/x_test.go"}}')"
