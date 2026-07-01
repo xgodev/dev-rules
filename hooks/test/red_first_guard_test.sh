@@ -19,6 +19,12 @@ reset
 out="$(run Read '{"tool_name":"Read","tool_input":{"file_path":"internal/x.go"}}')"
 if denied "$out"; then echo "ok  : read prod blocked (bug default)"; else echo "FAIL: read prod should be blocked"; fail=1; fi
 
+# 1b. No sentinel => EDIT and WRITE of production are DENIED too (bug discipline).
+out="$(run Edit '{"tool_name":"Edit","tool_input":{"file_path":"internal/x.go"}}')"
+if denied "$out"; then echo "ok  : edit prod blocked (bug default)"; else echo "FAIL: edit prod should be blocked (no sentinel)"; fail=1; fi
+out="$(run Write '{"tool_name":"Write","tool_input":{"file_path":"internal/x.go"}}')"
+if denied "$out"; then echo "ok  : write prod blocked (bug default)"; else echo "FAIL: write prod should be blocked (no sentinel)"; fail=1; fi
+
 # 2. Test file always allowed (no deny).
 reset
 out="$(run Read '{"tool_name":"Read","tool_input":{"file_path":"internal/x_test.go"}}')"
