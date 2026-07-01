@@ -10,8 +10,11 @@ DR_DEFAULT_PROD_SEGMENTS="src lib app internal pkg crates domain"
 dr_config() {
   local filter="$1" default="$2" cfg="${CLAUDE_PROJECT_DIR:-.}/.dev-rules.json"
   if [ -f "$cfg" ] && command -v jq >/dev/null 2>&1; then
-    local v; v="$(jq -r "$filter // empty" "$cfg" 2>/dev/null)"
-    [ -n "$v" ] && { printf '%s' "$v"; return; }
+    # NOTE: do NOT use `// empty` here -- jq's `//` treats a JSON `false`
+    # as absent, which would break the `enabled:false` opt-out. Filter for
+    # null on the shell side instead.
+    local v; v="$(jq -r "$filter" "$cfg" 2>/dev/null)"
+    [ -n "$v" ] && [ "$v" != "null" ] && { printf '%s' "$v"; return; }
   fi
   printf '%s' "$default"
 }
@@ -39,7 +42,7 @@ EOF
 dr_is_docs_or_config() {
   case "$1" in
     *.md|*.markdown|*.json|*.yaml|*.yml|*.toml|*.txt|*.lock) return 0 ;;
-    */.github/*|*/docs/*|*/.dev-rules/*) return 0 ;;
+    .github/*|docs/*|.dev-rules/*|*/.github/*|*/docs/*|*/.dev-rules/*) return 0 ;;
   esac
   return 1
 }

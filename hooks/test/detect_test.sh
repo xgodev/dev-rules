@@ -24,4 +24,14 @@ no dr_is_production "README.md"
 no dr_is_production "config/app.yaml"
 no dr_is_production "docs/x.md"
 
+# opt-out + enabled flag via .dev-rules.json (guards the jq-false trap)
+CFG="$(mktemp -d)"; export CLAUDE_PROJECT_DIR="$CFG"
+printf '%s' '{"enabled":false}' > "$CFG/.dev-rules.json"
+no dr_enabled                       # enabled:false must DISABLE gating
+printf '%s' '{"enabled":true}'  > "$CFG/.dev-rules.json"
+ok dr_enabled                       # explicit true keeps gating on
+rm -f "$CFG/.dev-rules.json"
+ok dr_enabled                       # absent config defaults to enabled
+rm -rf "$CFG"; unset CLAUDE_PROJECT_DIR
+
 exit $fail
