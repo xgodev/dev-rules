@@ -101,7 +101,11 @@ can change priorities, not the laws of correctness.
    the right reason. Only then write production code (GREEN). A test
    written after the fix, passing immediately, proves nothing -- it is
    forbidden. An existing failing test is not your RED unless YOU ran it
-   and watched it fail for THIS reason. Applies to "trivial" fixes too.
+   and watched it fail for THIS reason. Applies to "trivial" fixes too. For a BUG you understand the problem from the
+   spec and the user (brainstorming) and write the test from the INTENDED
+   behavior -- you do NOT read the production code first, because anchoring on
+   what the buggy code does contaminates the oracle (LAW 11). Read the
+   implementation only after the test is RED. This flow is LAW 13.
 2. **Docs always synced, same commit.** Any change to behavior, public API,
    structure, or version updates its docs (README, CHANGELOG, skill,
    inline contract) in the SAME commit. "Docs in a follow-up PR" is a
@@ -201,6 +205,22 @@ can change priorities, not the laws of correctness.
     thread. Code that "would break if run concurrently" is not simpler; it
     is hiding defects (shared state, non-idempotent writes) that running
     concurrent from day one would have surfaced while the system was small.
+13. **Spec-driven flow: understand before you encode.** Every change starts
+    with `brainstorming` -- lock the problem and the intended behavior WITH the
+    user before touching production code. Then the path forks. A **bug** goes
+    brainstorming -> RED (write the failing test from the intended behavior,
+    run it, see it fail) -> only THEN read the implementation and fix. A
+    **feature/improvement** goes brainstorming -> `writing-plans` ->
+    `executing-plans` (a fresh RED per unit before that unit's code). "I'll
+    just code it, it's small" is the failure mode this LAW stops -- no
+    triviality exception, same as LAW 1; the brainstorm can be three sentences
+    and the plan three bullets, but understanding must precede code. The plugin
+    ships hooks that enforce the ORDER deterministically: production code is
+    read-locked until you declare the feature flow (`.dev-rules/.mode-feature`)
+    or a failing test exists (`.dev-rules/.red-first-unlocked`), and production
+    EDITS are blocked until the test exists; a cycle-closing `fix(`/`feat(`
+    commit re-arms both. The gates prove order and existence, never quality --
+    a sound plan and a meaningful test stay your job (and the reviewer's).
 
 ## Communication
 
@@ -237,6 +257,9 @@ one of these, you are about to violate a rule. Stop.
 | "Concurrency now is premature optimization / speculation; volume today buys nothing measurable" | Concurrency is not an optimization, it is the execution model (LAW 12). A serial architecture hard-codes an assumption every later component depends on; undoing it is a rewrite. Design parallel-safe now and ship concurrent now; tune N, never retrofit the model. |
 | "I'll make it concurrency-READY but default to 1 worker; raising it later is a config change, not a redesign" | The path that is not the default is the path that is never run, never tested, and rots. A pool defaulted to 1 is a serial system wearing a config costume. Ship N > 1 so the exercised path IS the concurrent path; tune DOWN to 1 only for a stated, real constraint. |
 | "Concurrency adds untested failure modes (races, interleaving); sequential is safer" | Those failure modes already exist as latent defects -- shared mutable state, non-idempotent writes -- merely hidden by serial luck. Running concurrent from day one surfaces them while the system is small and cheap to fix; serial-by-default ships them. |
+| "The bug report points right at the [suspect] code -- I'll go straight there and read it, I get it in 30 seconds" | Reading the production code first makes your test assert what the code DOES, not what it SHOULD do. Both baseline agents went "straight to the coupon branch" and derived the expected value from the code they had just read. Lock the intended behavior WITH the user, encode it as a failing test, and open the implementation only after RED. |
+| "I traced it by hand and verified mentally, the fix is obviously correct -- a failing test is ceremony here" | Mental verification is not a RED (LAW 1), and the trace came from the suspect code, not the spec. A baseline agent shipped a fix having only "verified mentally" -- that is confidence, not evidence (LAW 3). |
+| "Brainstorming/a plan is ceremony for something this small" | The smallest changes are where unexamined assumptions waste the most work. The brainstorm can be three sentences and the plan three bullets, but understanding the intended behavior WITH the user must precede code. |
 
 ## Red Flags -- STOP
 
@@ -265,6 +288,17 @@ rule it breaks. If you think it, stop and do the rule instead.
   (the non-default path is never exercised; ship concurrent by default).
 - "Concurrency would be speculative at this volume" -> LAW 12 (it is the
   execution model, not a tuning knob; retrofitting it is a rewrite).
+- "Let me go straight to the [buggy function/block] and see what it does" ->
+  LAW 13 (both baseline agents said exactly this -- "go straight to the coupon
+  branch"; diagnosing from the code first anchors your oracle on what the code
+  DOES, not what it should do -- read the implementation only after the test is
+  RED).
+- "I traced/verified it mentally, the fix is obviously right, no failing test
+  needed" -> LAW 13 + LAW 1 (a baseline agent shipped after "verify mentally
+  before shipping"; a mental trace is not a RED and it came from the suspect
+  code, not the intended behavior).
+- "I'll just start coding, the brainstorm/plan is obvious" -> LAW 13 (every
+  change starts with brainstorming; bug -> RED, feature -> writing-plans).
 - "I'll just infer it from the name/prefix/id" -> Data Ownership.
 - "I'll read the env var right here, it's simpler" -> Separation of
   Concerns.
@@ -299,6 +333,11 @@ rule it breaks. If you think it, stop and do the rule instead.
 - It does not cover language- or tool-specific idioms by design (no Cargo,
   no Slint, no framework rules). Those belong in a language-specific skill,
   not here.
+- The flow gates (LAW 13) prove a plan/test exists and that you unlocked in
+  order; they cannot judge whether the plan is sound or the test asserts the
+  right behavior. They also cannot tell a feature from a bug -- you declare the
+  flow by creating `.dev-rules/.mode-feature` (feature) or going straight to
+  RED (bug). Reviewer judgment still required.
 
 ## Living Document
 

@@ -4,6 +4,33 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.0]
+
+### Added
+
+- **LAW 13 -- Spec-driven flow: understand before you encode.** Every change
+  starts with `brainstorming`; a bug then goes RED-first (test from the intended
+  behavior, code read only after RED -- reading the buggy code first contaminates
+  the oracle), a feature/improvement goes `writing-plans` -> `executing-plans`
+  with a fresh RED per unit. LAW 1 sharpened to state the bug read-discipline.
+- **The plugin now ships hooks** (`hooks/hooks.json` + scripts) -- its first
+  deterministic, language-agnostic enforcement, fired in every project where the
+  plugin is enabled:
+  - `red-first-guard.sh` -- mode-aware gate. Production code is read-locked until
+    `.dev-rules/.mode-feature` (feature flow) or `.dev-rules/.red-first-unlocked`
+    exists; production edits are blocked until `.red-first-unlocked`. Test files,
+    docs, and config are never blocked. Production-vs-test detection is a built-in
+    heuristic overridable via `.dev-rules.json` (`enabled:false` opts out).
+  - `clear-after-commit.sh` -- removes both sentinels after a `fix(`/`feat(`
+    commit so the next cycle re-brainstorms and re-REDs.
+  - Requires `jq`; degrades to warn + allow when absent.
+
+### Notes
+
+- The OpenRig-specific red-first hook is superseded by this generic one; removing
+  it from OpenRig and adding an OpenRig `.dev-rules.json` is a separate follow-up
+  in that repo (see the spec, section 8).
+
 ## [0.5.0]
 
 ### Added

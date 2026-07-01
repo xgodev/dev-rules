@@ -83,3 +83,47 @@ take effect.
 > An update is only recognized when the `version` in `plugin.json` is
 > incremented. Commits without a version bump do not trigger an update --
 > even with auto-update on, Claude Code reports "already at latest".
+
+## Enforcement hooks (shipped with the plugin)
+
+`dev-rules` ships language-agnostic hooks that fire in every project where the
+plugin is enabled. They make LAW 1 (RED-first) and LAW 13 (spec-driven flow)
+deterministic instead of advisory.
+
+**Requirement:** `jq` on `PATH`. Without it the hooks degrade to warn + allow
+(they never block when they cannot inspect the call).
+
+**State machine** (sentinels live under `<project>/.dev-rules/`, also honored
+under `.solvers/*/.dev-rules/`):
+
+| Sentinel | Production READ | Production EDIT |
+|---|---|---|
+| none (bug default) | blocked | blocked |
+| `.mode-feature` | allowed | blocked |
+| `.red-first-unlocked` | allowed | allowed |
+
+Test files, docs, and config are never blocked.
+
+**Bug flow:** brainstorm with the user -> write the failing test (allowed) ->
+see it RED -> `touch .dev-rules/.red-first-unlocked` -> read code and fix.
+
+**Feature flow:** brainstorm -> `touch .dev-rules/.mode-feature` -> read code
+and plan (`writing-plans`) -> per unit, write the failing test -> RED ->
+`touch .dev-rules/.red-first-unlocked` -> write the code.
+
+A `fix(`/`feat(`/`bugfix(` commit auto-clears both sentinels, so the next cycle
+re-brainstorms and re-REDs.
+
+**Per-repo config / opt-out (`.dev-rules.json` at the repo root):**
+
+```json
+{
+  "enabled": true,
+  "production_globs": ["src/**", "internal/**", "crates/**/src/**"],
+  "test_globs": ["**/*_test.*", "**/tests/**", "**/*.spec.*"]
+}
+```
+
+`"enabled": false` disables all gating for the project. Omit the file to use
+built-in detection (production segments: `src lib app internal pkg crates
+domain`, minus test/docs/config).
