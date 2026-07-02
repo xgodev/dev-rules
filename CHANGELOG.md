@@ -4,6 +4,19 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.7.0]
+
+### Changed
+
+- **Distribution moved to the single `xgodev-plugins` marketplace** (hosted
+  in `xgodev/claude-plugin`, which lists this repo as a GitHub source). This
+  repo's own marketplace (`xgodev-dev-rules`) is retired and
+  `.claude-plugin/marketplace.json` removed -- BREAKING for the install path
+  only; the skill and hooks are unchanged. Existing users: uninstall
+  `dev-rules@xgodev-dev-rules`, remove the `xgodev-dev-rules` marketplace,
+  add `xgodev/claude-plugin`, install `dev-rules@xgodev-plugins`. README
+  install/update/auto-update sections updated.
+
 ## [0.6.4]
 
 ### Fixed

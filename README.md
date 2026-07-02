@@ -17,10 +17,19 @@ writing -- not a passive reference skimmed after the fact.
 
 ## Install
 
+The plugin is distributed through the single `xgodev-plugins` marketplace,
+hosted in [`xgodev/claude-plugin`](https://github.com/xgodev/claude-plugin),
+which lists this repo as a GitHub source (this repo is not a marketplace
+itself):
+
 ```text
-/plugin marketplace add git@github.com:xgodev/dev-rules.git
-/plugin install dev-rules
+/plugin marketplace add git@github.com:xgodev/claude-plugin.git
+/plugin install dev-rules@xgodev-plugins
 ```
+
+> Until 0.6.4 this repo was its own marketplace (`xgodev-dev-rules`). If you
+> installed the old way: `/plugin uninstall dev-rules@xgodev-dev-rules`,
+> `/plugin marketplace remove xgodev-dev-rules`, then install as above.
 
 ## Update
 
@@ -33,13 +42,13 @@ Inside Claude Code:
 From the CLI:
 
 ```bash
-claude plugin update dev-rules@xgodev-dev-rules
+claude plugin update dev-rules@xgodev-plugins
 ```
 
 If it reports `Plugin "..." not found`, specify the scope explicitly:
 
 ```bash
-claude plugin update dev-rules@xgodev-dev-rules --scope user   # or: project | local | managed
+claude plugin update dev-rules@xgodev-plugins --scope user   # or: project | local | managed
 ```
 
 Use `claude plugin list` to find the scope where the plugin is installed.
@@ -56,7 +65,7 @@ Interactive, inside Claude Code:
 /plugin
 ```
 
--> **Marketplaces** -> select `xgodev-dev-rules` -> **Enable auto-update**.
+-> **Marketplaces** -> select `xgodev-plugins` -> **Enable auto-update**.
 
 Or declaratively, in `~/.claude/settings.json` (global) -- add
 `"autoUpdate": true` to the marketplace entry under
@@ -65,10 +74,10 @@ Or declaratively, in `~/.claude/settings.json` (global) -- add
 ```json
 {
   "extraKnownMarketplaces": {
-    "xgodev-dev-rules": {
+    "xgodev-plugins": {
       "source": {
         "source": "git",
-        "url": "git@github.com:xgodev/dev-rules.git"
+        "url": "git@github.com:xgodev/claude-plugin.git"
       },
       "autoUpdate": true
     }
