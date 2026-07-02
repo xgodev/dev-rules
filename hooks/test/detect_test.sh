@@ -36,4 +36,12 @@ rm -f "$CFG/.dev-rules.json"
 ok dr_enabled                       # absent config defaults to enabled
 rm -rf "$CFG"; unset CLAUDE_PROJECT_DIR
 
+# config production_globs / test_globs override (glob matching with `**`).
+CFG2="$(mktemp -d)"; export CLAUDE_PROJECT_DIR="$CFG2"
+printf '%s' '{"production_globs":["crates/**/src/**"],"test_globs":["**/legacy/**"]}' > "$CFG2/.dev-rules.json"
+ok dr_is_production "crates/project/src/lib.rs"   # matches production_globs (** glob)
+no dr_is_production "crates/project/build.rs"       # outside src -> globs are exclusive
+ok dr_is_test_file  "crates/x/legacy/old.rs"        # matches config test_globs (** glob)
+rm -rf "$CFG2"; unset CLAUDE_PROJECT_DIR
+
 exit $fail

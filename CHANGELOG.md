@@ -4,6 +4,18 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.3]
+
+### Fixed
+
+- **`.dev-rules.json` `production_globs`/`test_globs` now actually match.**
+  `dr_glob_match` translated `**` -> `*` with an escaped replacement (`\*`),
+  producing a pattern that matched a literal asterisk, so any config glob
+  containing `**` (e.g. `crates/**/src/**`) silently matched nothing and the
+  per-repo override was a no-op. The replacement is now a bare `*`. Added a
+  detect test that exercises the config `production_globs`/`test_globs` path
+  (previously untested).
+
 ## [0.6.2]
 
 ### Changed

@@ -22,7 +22,10 @@ dr_config() {
 dr_enabled() { [ "$(dr_config '.enabled' 'true')" != "false" ]; }
 
 # Translate '**' to '*' and match with bash [[ == ]].
-dr_glob_match() { local p="$1" g="${2//\*\*/\*}"; [[ "$p" == $g ]]; }
+# Translate `**` -> `*` (bash [[ ]] `*` already spans `/`). The replacement is a
+# bare `*`, NOT `\*`: an escaped `\*` would match a literal asterisk, so globs
+# like `crates/**/src/**` silently matched nothing (broke .dev-rules.json globs).
+dr_glob_match() { local p="$1" g="${2//\*\*/*}"; [[ "$p" == $g ]]; }
 
 dr_is_test_file() {
   case "$1" in
