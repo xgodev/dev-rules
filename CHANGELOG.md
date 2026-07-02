@@ -4,6 +4,23 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.4]
+
+### Fixed
+
+- **Stale text from before the 0.6.2 "red-first is bug-only" change.** The
+  `red-first-guard.sh` header comment still claimed `.mode-feature` kept edits
+  blocked, and the read-deny message said the sentinel only unlocked reading --
+  both now state that feature mode unlocks read AND edit (plan-governed).
+  Removed a duplicated comment line in `detect.sh`; synced the
+  `marketplace.json` plugin description with `plugin.json` (concurrency-first
+  design + shipped hooks).
+
+### Known gaps (documented, not fixed)
+
+- `NotebookEdit` is not in the hook matcher, so production `.ipynb` edits are
+  not gated.
+
 ## [0.6.3]
 
 ### Fixed

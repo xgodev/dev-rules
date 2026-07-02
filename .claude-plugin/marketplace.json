@@ -5,7 +5,7 @@
     {
       "name": "dev-rules",
       "source": "./",
-      "description": "A macro, language-agnostic engineering-discipline skill that governs how code is written, edited, and refactored: data ownership, zero coupling, single source of truth, RED-first TDD, docs-synced commits, and verify-before-done."
+      "description": "A macro, language-agnostic engineering-discipline skill that governs how code is written, edited, and refactored: data ownership, zero coupling, single source of truth, RED-first TDD, docs-synced commits, verify-before-done, and concurrency-first design. Ships language-agnostic RED-first enforcement hooks."
     }
   ]
 }

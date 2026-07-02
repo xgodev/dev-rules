@@ -6,7 +6,8 @@
 # Sentinels under $CLAUDE_PROJECT_DIR/.dev-rules/ (also honored under
 # .solvers/*/.dev-rules/ for isolated-workspace flows):
 #   none               -> bug discipline: production READ and EDIT blocked.
-#   .mode-feature      -> production READ allowed (planning); EDIT still blocked.
+#   .mode-feature      -> feature flow: READ and EDIT allowed (red-first is the
+#                         BUG gate; features are governed by the plan, not RED).
 #   .red-first-unlocked-> production READ and EDIT allowed.
 # Test files, docs, config: never blocked.
 set -euo pipefail
@@ -80,5 +81,5 @@ if [ "$intent" = "write" ]; then
 else
   red_unlocked && exit 0
   feature_mode && exit 0
-  deny "Read-locked (dev-rules LAW 13): choose a flow first. BUG: brainstorm with the user and write the failing test from the intended behavior BEFORE reading the code (reading the buggy code first contaminates the oracle), then create .dev-rules/.red-first-unlocked. FEATURE/IMPROVEMENT: after brainstorming, create .dev-rules/.mode-feature to read code for planning."
+  deny "Read-locked (dev-rules LAW 13): choose a flow first. BUG: brainstorm with the user and write the failing test from the intended behavior BEFORE reading the code (reading the buggy code first contaminates the oracle), then create .dev-rules/.red-first-unlocked. FEATURE/IMPROVEMENT: after brainstorming, create .dev-rules/.mode-feature to proceed with the feature flow (plan-governed; unlocks read and edit)."
 fi

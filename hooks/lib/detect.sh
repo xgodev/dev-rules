@@ -21,7 +21,6 @@ dr_config() {
 
 dr_enabled() { [ "$(dr_config '.enabled' 'true')" != "false" ]; }
 
-# Translate '**' to '*' and match with bash [[ == ]].
 # Translate `**` -> `*` (bash [[ ]] `*` already spans `/`). The replacement is a
 # bare `*`, NOT `\*`: an escaped `\*` would match a literal asterisk, so globs
 # like `crates/**/src/**` silently matched nothing (broke .dev-rules.json globs).
